@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Student Skill Link – FUW × Wukari</title>
+<meta name="description" content="Hire verified Federal University Wukari students for design, tech, photography, tailoring, beauty and more.">
+<style>
+:root{--bg:#f6f7f5;--fg:#16221f;--mut:#5d6b67;--card:#fff;--bd:#dde3df;--pri:#0f766e;--prf:#fff;--warn:#b45309;--ok:#15803d;--bad:#b91c1c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1514;--fg:#e8efec;--mut:#9aaba6;--card:#16201e;--bd:#27342f;--pri:#2dd4bf;--prf:#06201c;--warn:#fbbf24;--ok:#4ade80;--bad:#f87171;color-scheme:dark}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--bd);z-index:5}
+.bar{max-width:980px;margin:auto;padding:10px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.logo{font-weight:800;font-size:17px;color:var(--pri);margin-right:auto;cursor:pointer}
+main{max-width:980px;margin:auto;padding:16px 14px 60px}
+h1{font-size:24px;margin:6px 0}h2{font-size:18px;margin:18px 0 8px}h3{margin:0;font-size:16px}
+.mut{color:var(--mut);font-size:13px}
+button,.btn{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--fg);padding:8px 13px;border-radius:9px;cursor:pointer}
+button.p{background:var(--pri);color:var(--prf);border-color:var(--pri);font-weight:600}
+button.s{padding:5px 10px;font-size:13px}button.d{color:var(--bad)}button:disabled{opacity:.6}
+input,select,textarea{font:inherit;width:100%;padding:9px 11px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--fg)}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 3px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:13px;padding:14px}
+.card.c{cursor:pointer}.card.c:hover{border-color:var(--pri)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--bd);margin:2px 3px 2px 0;color:var(--mut)}
+.ok{color:var(--ok);border-color:var(--ok)}.wa{color:var(--warn);border-color:var(--warn)}.no{color:var(--bad);border-color:var(--bad)}
+.st{color:#f59e0b;letter-spacing:1px}
+.hero{background:linear-gradient(135deg,var(--pri),#134e4a);color:#fff;border-radius:16px;padding:22px 18px;margin-bottom:16px}
+.hero p{margin:6px 0 0;opacity:.92}
+.f{max-width:520px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stats b{font-size:24px;display:block}
+.table{overflow-x:auto}table{border-collapse:collapse;width:100%}td,th{padding:8px;border-bottom:1px solid var(--bd);text-align:left;font-size:14px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:99px;display:none;z-index:9;max-width:90vw}
+@media(max-width:480px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="bar" id="nav"></div></header>
+<main id="app"></main>
+<div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SB_URL='https://uthiwmlvwmcbndmeatpo.supabase.co',
+SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0aGl3bWx2d21jYm5kbWVhdHBvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3ODQxNjMsImV4cCI6MjEwODM2MDE2M30.G7OgDLIUwvikvV0I-Z0JzBzfAHKwO-vy0FFNbRjj28o';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const CATS=['Digital & Tech','Design & Creative','Photo & Video','Fashion & Tailoring','Beauty & Grooming','Crafts & Vocational'],
+AREAS=['Wukari Town','Rafin Kada','Hospital Road','Avyi','Akwana','Chonku','Puje','Bantaje','Other (Wukari LGA)'],
+MATRIC=/^[A-Z]{2,4}\/[A-Z]{2,5}\/\d{2}\/\d{3,4}$/;
+let P=null,v={p:'browse',q:'',c:'',o:'rating',role:'student',list:null};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const naira=n=>'₦'+Number(n||0).toLocaleString();
+const stars=a=>'★'.repeat(Math.round(a))+'☆'.repeat(5-Math.round(a));
+const tagc={pending:'wa',accepted:'ok',completed:'ok',declined:'no'};
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',3200)}
+async function setP(s){P=null;if(s){const{data}=await sb.from('profiles').select('*').eq('id',s.user.id).maybeSingle();P=data}}
+function nav(){let h='<span class="logo" data-go="browse">◆ Student Skill Link</span><button class="s" data-go="browse">Browse</button>';
+ if(P)h+=`<button class="s" data-go="${P.role==='admin'?'admin':'dash'}">${P.role==='admin'?'Admin':'Dashboard'}</button><button class="s" data-act="out">Log out</button>`;
+ else h+='<button class="s" data-go="login">Log in</button><button class="s p" data-go="reg">Join</button>';
+ $('#nav').innerHTML=h}
+async function render(){nav();if(['dash','admin'].includes(v.p)&&!P)v.p='login';if(v.p==='admin'&&P?.role!=='admin')v.p='dash';
+ const app=$('#app');app.innerHTML='<p class="mut">Loading…</p>';
+ try{app.innerHTML=await V[v.p]();if(v.p==='browse')drawList()}catch(e){console.error(e);app.innerHTML='<div class="card"><h3>Something went wrong</h3><p class="mut">Please check your connection and try again.</p></div>'}
+ window.scrollTo(0,0)}
+const card=s=>`<div class="card c" data-go="prof" data-id="${s.id}"><div class="row"><h3>${esc(s.full_name)}</h3><span class="tag ok">✓ Verified</span></div>
+<div class="mut">${esc(s.category)} · ${esc(s.area)}</div><p style="margin:8px 0">${esc(s.skills)}</p>
+<div class="row"><span class="st">${stars(s.avg_rating)}</span><span class="mut">${s.review_count?Number(s.avg_rating).toFixed(1)+' ('+s.review_count+')':'No reviews yet'}</span><b style="margin-left:auto">from ${naira(s.rate)}</b></div></div>`;
+function drawList(){const el=$('#res');if(!el)return;const q=v.q.toLowerCase();let l=(v.list||[]).filter(s=>(!q||(s.full_name+s.skills+s.category+s.bio+s.area).toLowerCase().includes(q))&&(!v.c||s.category===v.c));
+ l.sort((a,b)=>v.o==='price'?a.rate-b.rate:b.avg_rating-a.avg_rating);
+ el.innerHTML=`<h2>${l.length} verified student${l.length===1?'':'s'}</h2><div class="grid">${l.map(card).join('')||'<p class="mut">No matches yet. Try another search.</p>'}</div>`}
+const phoneOf=async id=>(await sb.rpc('contact_phone',{req:id})).data||'';
+const V={
+async browse(){if(!v.list){const{data}=await sb.from('public_students').select('*');v.list=data||[]}
+ return`<div class="hero"><h1>Skilled FUW students. Trusted by Wukari.</h1><p>Hire verified Federal University Wukari students for design, tech, photography, tailoring, beauty and more.</p></div>
+ <div class="row"><input id="q" style="flex:2;min-width:160px" placeholder="Search skill, name or area…" value="${esc(v.q)}"><select id="c" style="flex:1;min-width:140px"><option value="">All categories</option>${CATS.map(c=>`<option ${v.c===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
+ <select id="o" style="flex:1;min-width:120px"><option value="rating">Top rated</option><option value="price" ${v.o==='price'?'selected':''}>Lowest price</option></select></div><div id="res"></div>`},
+async prof(){const[{data:s},{data:rv},{data:mine}]=await Promise.all([sb.from('public_students').select('*').eq('id',v.id).maybeSingle(),
+ sb.from('reviews').select('*').eq('student_id',v.id).order('created_at',{ascending:false}),
+ P?sb.from('requests').select('id,status').eq('student_id',v.id).eq('client_id',P.id):Promise.resolve({data:[]})]);
+ if(!s)return'<p>Student not found. <a href="#" data-go="browse">Back</a></p>';
+ const ok=(mine||[]).find(r=>['accepted','completed'].includes(r.status)),ph=ok?await phoneOf(ok.id):'';
+ return`<button class="s" data-go="browse">← Back</button><div class="card" style="margin-top:10px"><div class="row"><h1 style="margin:0">${esc(s.full_name)}</h1><span class="tag ok">✓ Verified FUW student</span></div>
+ <div class="mut">${esc(s.dept)} · ${esc(s.category)} · ${esc(s.area)}</div><p>${esc(s.bio)}</p>
+ <div>${(s.skills||'').split(',').map(x=>`<span class="tag">${esc(x.trim())}</span>`).join('')}</div>
+ <p><span class="st">${stars(s.avg_rating)}</span> ${s.review_count?Number(s.avg_rating).toFixed(1)+' · '+s.review_count+' review(s)':'No reviews yet'} · <b>from ${naira(s.rate)}</b></p>
+ ${/^https?:\/\//.test(s.portfolio||'')?`<p><a href="${esc(s.portfolio)}" target="_blank" rel="noopener noreferrer">View portfolio ↗</a></p>`:''}
+ ${ph?`<p class="tag ok">Contact: ${esc(ph)}</p>`:'<p class="mut">Phone number is shared once the student accepts your request.</p>'}</div>
+ <h2>Request this service</h2>${!P?'<p class="mut">Please <a href="#" data-go="login">log in</a> or <a href="#" data-go="reg">join</a> as a client to send a request.</p>':P.role!=='client'?'<p class="mut">Only client accounts can send requests.</p>':
+ `<form class="card f" data-f="req" data-id="${s.id}"><label>What do you need?</label><input name="title" required maxlength="80"><label>Details (date, place, quantity)</label><textarea name="details" rows="3" required maxlength="1000"></textarea><label>Budget (₦)</label><input name="budget" type="number" min="0" required><br><br><button class="p">Send request</button></form>`}
+ <h2>Reviews</h2>${(rv||[]).map(x=>`<div class="card" style="margin-bottom:8px"><span class="st">${stars(x.stars)}</span> <b>${esc(x.client_name||'Client')}</b><p style="margin:4px 0 0">${esc(x.body)}</p></div>`).join('')||'<p class="mut">No reviews yet.</p>'}`},
+login(){return`<form class="card f" data-f="login"><h1>Log in</h1><label>Email</label><input name="email" type="email" required autocomplete="email"><label>Password</label><input name="pw" type="password" required autocomplete="current-password"><br><br><button class="p">Log in</button>
+ <p class="mut"><a href="#" data-act="reset">Forgot password?</a></p></form>`},
+reg(){const st=v.role==='student';return`<form class="card f" data-f="reg"><h1>Join Skill Link</h1><div class="row"><button type="button" class="${st?'p':''}" data-act="role" data-r="student">I am an FUW student</button><button type="button" class="${st?'':'p'}" data-act="role" data-r="client">I need a service</button></div>
+ <label>Full name</label><input name="name" required><label>Email</label><input name="email" type="email" required autocomplete="email"><label>Password (min 8)</label><input name="pw" type="password" minlength="8" required autocomplete="new-password">
+ <label>Phone</label><input name="phone" required placeholder="080…"><label>${st?'Area / community':'Your community in Wukari LGA'}</label><select name="area">${AREAS.map(a=>`<option>${a}</option>`).join('')}</select>
+ ${st?`<label>Matriculation number</label><input name="matric" required placeholder="ENG/COE/21/025" style="text-transform:uppercase"><label>Department</label><input name="dept" required>
+ <label>Category</label><select name="cat">${CATS.map(c=>`<option>${c}</option>`).join('')}</select><label>Skills (comma-separated)</label><input name="skills" required>
+ <label>Short bio</label><textarea name="bio" rows="3" required></textarea><div class="two"><div><label>Starting rate (₦)</label><input name="rate" type="number" min="0" required></div><div><label>Portfolio link</label><input name="portfolio" type="url" placeholder="https://"></div></div>
+ <p class="mut">Students appear in search after an admin verifies the matric number.</p>`:''}<br><button class="p">Create account</button></form>`},
+notice(){return`<div class="card f"><h1>Check your email</h1><p>We sent a confirmation link. Open it, then log in.</p><button class="p" data-go="login">Go to log in</button></div>`},
+async dash(){return P.role==='student'?await studentDash():await clientDash()},
+async admin(){const[{data:S},{data:rv},c1,c2,c3]=await Promise.all([sb.from('profiles').select('*').eq('role','student').order('created_at',{ascending:false}),sb.from('reviews').select('*').order('created_at',{ascending:false}).limit(30),
+ sb.from('profiles').select('id',{count:'exact',head:true}).eq('role','client'),sb.from('requests').select('id',{count:'exact',head:true}),sb.from('reviews').select('id',{count:'exact',head:true})]);
+ const nm=Object.fromEntries((S||[]).map(s=>[s.id,s.full_name]));
+ return`<h1>Admin</h1><div class="stats"><div class="card"><b>${(S||[]).length}</b>Students</div><div class="card"><b>${(S||[]).filter(s=>!s.verified).length}</b>Awaiting verification</div><div class="card"><b>${c1.count||0}</b>Clients</div><div class="card"><b>${c2.count||0}</b>Requests</div><div class="card"><b>${c3.count||0}</b>Reviews</div></div>
+ <h2>Students</h2><div class="card table"><table><tr><th>Name</th><th>Matric</th><th>Category</th><th>Status</th><th></th></tr>${(S||[]).map(s=>`<tr><td>${esc(s.full_name)}</td><td>${esc(s.matric)}</td><td>${esc(s.category)}</td><td><span class="tag ${s.verified?'ok':'wa'}">${s.verified?'Verified':'Pending'}</span></td>
+ <td><button class="s" data-act="ver" data-id="${s.id}" data-v="${!s.verified}">${s.verified?'Revoke':'Verify'}</button> <button class="s d" data-act="del" data-id="${s.id}">Remove</button></td></tr>`).join('')}</table></div>
+ <h2>Recent reviews</h2>${(rv||[]).map(x=>`<div class="card" style="margin-bottom:8px"><span class="st">${stars(x.stars)}</span> ${esc(nm[x.student_id]||'')} — ${esc(x.body)} <button class="s d" data-act="delrv" data-id="${x.id}">Delete</button></div>`).join('')||'<p class="mut">None.</p>'}`}};
+async function studentDash(){const{data:rq}=await sb.from('requests').select('*').eq('student_id',P.id).order('created_at',{ascending:false});
+ const ph=await Promise.all((rq||[]).map(r=>['accepted','completed'].includes(r.status)?phoneOf(r.id):''));
+ return`<h1>Hello, ${esc(P.full_name.split(' ')[0])}</h1><span class="tag ${P.verified?'ok':'wa'}">${P.verified?'✓ Verified':'Awaiting admin verification — you will appear in search once verified'}</span>
+ <h2>Incoming requests</h2>${(rq||[]).map((r,i)=>`<div class="card" style="margin-bottom:8px"><div class="row"><h3>${esc(r.title)}</h3><span class="tag ${tagc[r.status]}">${r.status}</span><b style="margin-left:auto">${naira(r.budget)}</b></div>
+ <div class="mut">From ${esc(r.client_name)} · ${esc(r.client_area)} ${ph[i]?'· '+esc(ph[i]):''}</div><p>${esc(r.details)}</p>
+ ${r.status==='pending'?`<button class="s p" data-act="rs" data-id="${r.id}" data-s="accepted">Accept</button> <button class="s d" data-act="rs" data-id="${r.id}" data-s="declined">Decline</button>`:''}
+ ${r.status==='accepted'?`<button class="s p" data-act="rs" data-id="${r.id}" data-s="completed">Mark completed</button>`:''}</div>`).join('')||'<p class="mut">No requests yet.</p>'}
+ <h2>My profile</h2><form class="card f" data-f="prof"><label>Category</label><select name="category">${CATS.map(c=>`<option ${P.category===c?'selected':''}>${esc(c)}</option>`).join('')}</select><label>Skills</label><input name="skills" value="${esc(P.skills)}"><label>Bio</label><textarea name="bio" rows="3">${esc(P.bio)}</textarea>
+ <div class="two"><div><label>Starting rate (₦)</label><input name="rate" type="number" min="0" value="${P.rate}"></div><div><label>Phone</label><input name="phone" value="${esc(P.phone)}"></div></div><label>Portfolio link</label><input name="portfolio" type="url" value="${esc(P.portfolio)}"><br><br><button class="p">Save profile</button></form>`}
+async function clientDash(){const[{data:rq},{data:rv},{data:S}]=await Promise.all([sb.from('requests').select('*').eq('client_id',P.id).order('created_at',{ascending:false}),sb.from('reviews').select('request_id').eq('client_id',P.id),sb.from('public_students').select('id,full_name')]);
+ const nm=Object.fromEntries((S||[]).map(s=>[s.id,s.full_name])),done=new Set((rv||[]).map(x=>x.request_id)),ph=await Promise.all((rq||[]).map(r=>['accepted','completed'].includes(r.status)?phoneOf(r.id):''));
+ return`<h1>Hello, ${esc(P.full_name)}</h1><h2>My requests</h2>${(rq||[]).map((r,i)=>`<div class="card" style="margin-bottom:8px"><div class="row"><h3>${esc(r.title)}</h3><span class="tag ${tagc[r.status]}">${r.status}</span><b style="margin-left:auto">${naira(r.budget)}</b></div>
+ <div class="mut">To ${esc(nm[r.student_id]||'student')} ${ph[i]?'· '+esc(ph[i]):''}</div>
+ ${r.status==='completed'&&!done.has(r.id)?`<form data-f="rev" data-id="${r.id}" data-sid="${r.student_id}" class="row" style="margin-top:8px"><select name="stars" style="width:90px">${[5,4,3,2,1].map(n=>`<option value="${n}">${n} ★</option>`).join('')}</select><input name="text" required maxlength="500" placeholder="Write a short review" style="flex:1;min-width:150px"><button class="s p">Submit</button></form>`:''}</div>`).join('')||'<p class="mut">No requests yet. <a href="#" data-go="browse">Browse students</a>.</p>'}`}
+document.addEventListener('input',e=>{if(e.target.id==='q'){v.q=e.target.value;drawList()}});
+document.addEventListener('change',e=>{if(e.target.id==='c'){v.c=e.target.value;drawList()}if(e.target.id==='o'){v.o=e.target.value;drawList()}});
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-go],[data-act]');if(!t)return;e.preventDefault();const d=t.dataset;
+ if(d.go){v.p=d.go;if(d.id)v.id=d.id;if(d.go==='browse')v.list=null;return render()}
+ const a=d.act;let r;
+ if(a==='out'){await sb.auth.signOut();P=null;v.p='browse';v.list=null}
+ if(a==='role')v.role=d.r;
+ if(a==='reset'){const em=prompt('Enter your account email');if(em){await sb.auth.resetPasswordForEmail(em,{redirectTo:location.origin});return toast('If the email exists, a reset link was sent')}return}
+ if(a==='ver')r=await sb.rpc('admin_set_verified',{uid:d.id,v:d.v==='true'});
+ if(a==='del'){if(!confirm('Remove this student and all their data?'))return;r=await sb.rpc('admin_remove_user',{uid:d.id})}
+ if(a==='delrv')r=await sb.from('reviews').delete().eq('id',d.id);
+ if(a==='rs'){r=await sb.from('requests').update({status:d.s}).eq('id',d.id);if(!r.error)toast('Request '+d.s)}
+ if(r?.error)toast(r.error.message);render()});
+document.addEventListener('submit',async e=>{e.preventDefault();const f=e.target,d=f.dataset,x=Object.fromEntries(new FormData(f)),btn=f.querySelector('button:not([type=button])');if(btn)btn.disabled=true;let r,next=null;
+ try{
+ if(d.f==='login'){r=await sb.auth.signInWithPassword({email:x.email.trim(),password:x.pw});if(!r.error){await setP(r.data.session);next=P?.role==='admin'?'admin':'dash'}}
+ if(d.f==='reg'){const role=v.role==='client'?'client':'student',m=(x.matric||'').trim().toUpperCase();
+  if(role==='student'&&!MATRIC.test(m)){toast('Matric format e.g. ENG/COE/21/025');if(btn)btn.disabled=false;return}
+  r=await sb.auth.signUp({email:x.email.trim(),password:x.pw,options:{emailRedirectTo:location.origin,data:{role,full_name:x.name.trim(),phone:x.phone.trim(),area:x.area,matric:m,dept:x.dept,category:x.cat,skills:x.skills,bio:x.bio,rate:x.rate,portfolio:x.portfolio}}});
+  if(r.error&&/database error/i.test(r.error.message))r.error={message:'Could not create account. Is the matric number valid and not already registered?'};
+  if(!r.error){if(r.data.session){await setP(r.data.session);next='dash'}else next='notice'}}
+ if(d.f==='req'){r=await sb.from('requests').insert({client_id:P.id,student_id:d.id,title:x.title,details:x.details,budget:+x.budget});if(!r.error){toast('Request sent');next='dash'}}
+ if(d.f==='rev'){r=await sb.from('reviews').insert({request_id:d.id,student_id:d.sid,client_id:P.id,stars:+x.stars,body:x.text});if(!r.error)toast('Thanks for your review')}
+ if(d.f==='prof'){r=await sb.from('profiles').update({category:x.category,skills:x.skills,bio:x.bio,rate:+x.rate,phone:x.phone,portfolio:x.portfolio}).eq('id',P.id);if(!r.error){await setP((await sb.auth.getSession()).data.session);toast('Profile saved')}}
+ }catch(err){r={error:{message:'Network error. Try again.'}}}
+ if(r?.error){toast(r.error.message);if(btn)btn.disabled=false;return}
+ if(next){v.p=next;v.list=null}render()});
+(async()=>{const{data}=await sb.auth.getSession();await setP(data.session);render()})();
+</script>
+</body>
+</html>
